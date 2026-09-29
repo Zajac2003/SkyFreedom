@@ -58,21 +58,21 @@
 
       <section class="map-stage" aria-label="Mapa misji">
         <div id="map" role="application" tabindex="-1"></div>
-        <button class="map-menu-btn" type="button" id="btn-map-menu" aria-label="Menu mapy" aria-expanded="false" aria-controls="map-menu">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <circle cx="12" cy="6" r="1.5"/>
-            <circle cx="12" cy="12" r="1.5"/>
-            <circle cx="12" cy="18" r="1.5"/>
+        <button class="map-menu-btn" type="button" id="btn-map-menu" aria-label="Filtry pinezek" aria-expanded="false" aria-controls="map-menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 5h16l-5.5 6.5V18l-5 2.5v-9L4 5z"/>
           </svg>
         </button>
         <div class="map-menu" id="map-menu" hidden role="menu" aria-label="Filtry pinezek">
           <label class="map-menu__item">
             <input type="checkbox" id="filter-active" checked>
             <span>Aktywne</span>
+            <span class="map-menu__count" id="count-active">0</span>
           </label>
           <label class="map-menu__item">
             <input type="checkbox" id="filter-inactive" checked>
             <span>Nieaktywne</span>
+            <span class="map-menu__count" id="count-inactive">0</span>
           </label>
         </div>
         <p class="telemetry" id="telemetry" aria-live="polite">alt — · hd —°</p>
@@ -84,13 +84,26 @@
           </span>
           <span class="offscreen-drone__dist" id="offscreen-dist">—</span>
         </button>
-        <button class="locate-btn" type="button" id="btn-locate" aria-label="Wróć do drona" title="Wróć do drona">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.8"/>
-          </svg>
-        </button>
+        <div class="map-fabs">
+          <button class="layers-btn" type="button" id="btn-layers" aria-label="Warstwy mapy" aria-expanded="false" aria-controls="layers-menu" title="Warstwy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 4l8 4-8 4-8-4 8-4z"/>
+              <path d="M4 12l8 4 8-4"/>
+              <path d="M4 16l8 4 8-4"/>
+            </svg>
+          </button>
+          <div class="layers-menu" id="layers-menu" hidden role="menu" aria-label="Warstwy mapy">
+            <button type="button" class="layers-menu__item is-active" data-layer="satellite" role="menuitemradio" aria-checked="true">Satelita</button>
+            <button type="button" class="layers-menu__item" data-layer="streets" role="menuitemradio" aria-checked="false">Mapa</button>
+          </div>
+          <button class="locate-btn" type="button" id="btn-locate" aria-label="Wróć do drona" title="Wróć do drona">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
       </section>
 
       <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
@@ -109,7 +122,27 @@
             <textarea id="pin-note" name="note" maxlength="500" required placeholder="Np. Most niesprawny, wysadzony przez drona"></textarea>
             <label for="pin-note">Notatka</label>
           </div>
+          <div class="ttl-field">
+            <div class="ttl-field__head">
+              <span>Żywotność</span>
+              <span id="ttl-label">Bezterminowy</span>
+            </div>
+            <input class="ttl-slider" id="pin-ttl" type="range" min="0" max="4" step="1" value="0" aria-valuetext="Bezterminowy">
+            <div class="ttl-ticks" aria-hidden="true">
+              <span>∞</span>
+              <span>15m</span>
+              <span>1h</span>
+              <span>6h</span>
+              <span>24h</span>
+            </div>
+          </div>
           <p class="coords-line" id="add-coords" aria-live="polite">—</p>
+          <dl class="pin-meta pin-meta--compact">
+            <div>
+              <dt>ID</dt>
+              <dd id="add-pin-id">—</dd>
+            </div>
+          </dl>
           <button class="btn btn-primary" type="submit" id="btn-save-pin">Dodaj pinezkę</button>
         </form>
       </aside>

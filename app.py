@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 import sqlite3
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from flask import Flask, g, jsonify, render_template, request, send_from_directory
@@ -48,14 +48,22 @@ def init_db() -> None:
                 lng REAL NOT NULL,
                 created_at TEXT NOT NULL,
                 active INTEGER NOT NULL DEFAULT 1,
-                owner_id TEXT NOT NULL
+                owner_id TEXT NOT NULL,
+                ttl_minutes INTEGER,
+                expires_at TEXT
             )
             """
         )
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(pins)")}
+        if "ttl_minutes" not in cols:
+            conn.execute("ALTER TABLE pins ADD COLUMN ttl_minutes INTEGER")
+        if "expires_at" not in cols:
+            conn.execute("ALTER TABLE pins ADD COLUMN expires_at TEXT")
         conn.commit()
 
 
 def pin_row(row: sqlite3.Row) -> dict:
+    keys = row.keys()
     return {
         "id": row["id"],
         "note": row["note"],
@@ -64,6 +72,8 @@ def pin_row(row: sqlite3.Row) -> dict:
         "created_at": row["created_at"],
         "active": bool(row["active"]),
         "owner_id": row["owner_id"],
+        "ttl_minutes": row["ttl_minutes"] if "ttl_minutes" in keys else None,
+        "expires_at": row["expires_at"] if "expires_at" in keys else None,
     }
 
 
@@ -132,15 +142,38 @@ def api_pins_create():
         return jsonify({"error": "coords_required"}), 400
 
     owner_id = (data.get("owner_id") or DEFAULT_OWNER).strip() or DEFAULT_OWNER
-    created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    created_at = datetime.now(timezone.utc)
+
+    ttl_minutes = data.get("ttl_minutes")
+    if ttl_minutes in ("", None):
+        ttl_minutes = None
+    else:
+        try:
+            ttl_minutes = int(ttl_minutes)
+        except (TypeError, ValueError):
+            return jsonify({"error": "ttl_invalid"}), 400
+        if ttl_minutes <= 0:
+            ttl_minutes = None
+
+    expires_at = None
+    if ttl_minutes:
+        expires_at = (created_at + timedelta(minutes=ttl_minutes)).isoformat(timespec="seconds")
 
     db = get_db()
     cur = db.execute(
         """
-        INSERT INTO pins (note, lat, lng, created_at, active, owner_id)
-        VALUES (?, ?, ?, ?, 1, ?)
+        INSERT INTO pins (note, lat, lng, created_at, active, owner_id, ttl_minutes, expires_at)
+        VALUES (?, ?, ?, ?, 1, ?, ?, ?)
         """,
-        (note, lat, lng, created_at, owner_id),
+        (
+            note,
+            lat,
+            lng,
+            created_at.isoformat(timespec="seconds"),
+            owner_id,
+            ttl_minutes,
+            expires_at,
+        ),
     )
     db.commit()
     row = db.execute("SELECT * FROM pins WHERE id = ?", (cur.lastrowid,)).fetchone()

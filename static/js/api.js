@@ -23,10 +23,10 @@ export function fetchPins() {
   return request("/api/pins");
 }
 
-export function createPin({ note, lat, lng, owner_id = OWNER_ID }) {
+export function createPin({ note, lat, lng, owner_id = OWNER_ID, ttl_minutes = null }) {
   return request("/api/pins", {
     method: "POST",
-    body: JSON.stringify({ note, lat, lng, owner_id }),
+    body: JSON.stringify({ note, lat, lng, owner_id, ttl_minutes }),
   });
 }
 

@@ -11,15 +11,24 @@ function droneIconHtml(heading = 0, speed = 0) {
   `;
 }
 
-function pinIconHtml(active, ghost = false) {
-  const fill = ghost ? "#E85D04" : active ? "#E85D04" : "#6B7785";
+function pinIconHtml({ active = true, ghost = false, id = null } = {}) {
+  const fill = ghost ? "#E85D04" : active ? "#E85D04" : "#D8DEE6";
+  const stroke = active || ghost ? "none" : "#1A2332";
+  const strokeW = active || ghost ? 0 : 1.5;
+  const label = id == null ? "—" : String(id);
   return `
-    <svg class="pin-marker__glyph" viewBox="0 0 28 36" aria-hidden="true">
-      <path fill="${fill}" d="M14 0C7.4 0 2 5.2 2 11.6c0 8.2 10.2 22.4 11 23.4a1.2 1.2 0 0 0 2 0c.8-1 11-15.2 11-23.4C26 5.2 20.6 0 14 0z"/>
-      <circle cx="14" cy="12" r="4.2" fill="#fff"/>
-    </svg>
+    <div class="pin-marker__wrap">
+      <span class="pin-marker__id">${label}</span>
+      <svg class="pin-marker__glyph" viewBox="0 0 28 36" aria-hidden="true">
+        <path fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}" d="M14 0C7.4 0 2 5.2 2 11.6c0 8.2 10.2 22.4 11 23.4a1.2 1.2 0 0 0 2 0c.8-1 11-15.2 11-23.4C26 5.2 20.6 0 14 0z"/>
+        <circle cx="14" cy="12" r="4.2" fill="${active || ghost ? "#fff" : "#6B7785"}"/>
+      </svg>
+    </div>
   `;
 }
+
+const PIN_ICON_SIZE = [40, 52];
+const PIN_ICON_ANCHOR = [20, 52];
 
 export function createMissionMap(el) {
   const map = L.map(el, {
@@ -27,10 +36,31 @@ export function createMissionMap(el) {
     attributionControl: false,
   }).setView(WARSAW, 15);
 
-  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
-    maxZoom: 19,
-    attribution: "Tiles &copy; Esri",
-  }).addTo(map);
+  const layers = {
+    satellite: L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 19, attribution: "Tiles &copy; Esri" },
+    ),
+    streets: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap",
+    }),
+  };
+
+  let activeLayer = "satellite";
+  layers.satellite.addTo(map);
+
+  function setBaseLayer(name) {
+    if (!layers[name] || name === activeLayer) return activeLayer;
+    map.removeLayer(layers[activeLayer]);
+    layers[name].addTo(map);
+    activeLayer = name;
+    return activeLayer;
+  }
+
+  function getBaseLayer() {
+    return activeLayer;
+  }
 
   const droneMarker = L.marker(WARSAW, {
     icon: L.divIcon({
@@ -67,18 +97,27 @@ export function createMissionMap(el) {
     }
   }
 
-  function setGhostPin(lat, lng) {
+  function setGhostPin(lat, lng, id = null) {
     const latlng = [lat, lng];
+    const html = pinIconHtml({ active: true, ghost: true, id });
     if (ghostMarker) {
       ghostMarker.setLatLng(latlng);
+      ghostMarker.setIcon(
+        L.divIcon({
+          className: "pin-marker is-ghost",
+          html,
+          iconSize: PIN_ICON_SIZE,
+          iconAnchor: PIN_ICON_ANCHOR,
+        }),
+      );
       return;
     }
     ghostMarker = L.marker(latlng, {
       icon: L.divIcon({
         className: "pin-marker is-ghost",
-        html: pinIconHtml(true, true),
-        iconSize: [28, 36],
-        iconAnchor: [14, 36],
+        html,
+        iconSize: PIN_ICON_SIZE,
+        iconAnchor: PIN_ICON_ANCHOR,
       }),
       interactive: false,
       zIndexOffset: 900,
@@ -103,14 +142,15 @@ export function createMissionMap(el) {
 
     for (const pin of visible) {
       const latlng = [pin.lat, pin.lng];
+      const html = pinIconHtml({ active: pin.active, id: pin.id });
       let marker = pinMarkers.get(pin.id);
       if (!marker) {
         marker = L.marker(latlng, {
           icon: L.divIcon({
             className: `pin-marker${pin.active ? "" : " is-inactive"}`,
-            html: pinIconHtml(pin.active),
-            iconSize: [28, 36],
-            iconAnchor: [14, 36],
+            html,
+            iconSize: PIN_ICON_SIZE,
+            iconAnchor: PIN_ICON_ANCHOR,
           }),
         });
         marker.on("click", () => onSelect(pin));
@@ -121,9 +161,9 @@ export function createMissionMap(el) {
         marker.setIcon(
           L.divIcon({
             className: `pin-marker${pin.active ? "" : " is-inactive"}`,
-            html: pinIconHtml(pin.active),
-            iconSize: [28, 36],
-            iconAnchor: [14, 36],
+            html,
+            iconSize: PIN_ICON_SIZE,
+            iconAnchor: PIN_ICON_ANCHOR,
           }),
         );
         marker.off("click");
@@ -141,6 +181,51 @@ export function createMissionMap(el) {
       return;
     }
     map.setView([lat, lng], map.getZoom(), { animate: false });
+  }
+
+  function isOnScreen(lat, lng, pad = 48) {
+    const size = map.getSize();
+    const point = map.latLngToContainerPoint([lat, lng]);
+    return (
+      point.x >= pad &&
+      point.x <= size.x - pad &&
+      point.y >= pad &&
+      point.y <= size.y - pad
+    );
+  }
+
+  function fitLatLngs(points, { animate = false, pad = 56, maxZoom = 17 } = {}) {
+    if (!points.length) return;
+    if (points.length === 1) {
+      map.setView(points[0], Math.min(map.getZoom(), maxZoom), { animate });
+      return;
+    }
+    const bounds = L.latLngBounds(points);
+    map.fitBounds(bounds, {
+      padding: [pad, pad],
+      maxZoom,
+      animate,
+      duration: animate ? 0.45 : 0,
+    });
+  }
+
+  /** Smoothly ease map so all points stay framed — call every frame */
+  function smoothFramePoints(points, { pad = 64, maxZoom = 17, ease = 0.12 } = {}) {
+    if (points.length < 2) return;
+
+    const bounds = L.latLngBounds(points);
+    const targetCenter = bounds.getCenter();
+    let targetZoom = map.getBoundsZoom(bounds, false, L.point(pad, pad));
+    if (!Number.isFinite(targetZoom)) targetZoom = map.getZoom();
+    targetZoom = Math.min(targetZoom, maxZoom);
+
+    const cur = map.getCenter();
+    const curZoom = map.getZoom();
+    const lat = cur.lat + (targetCenter.lat - cur.lat) * ease;
+    const lng = cur.lng + (targetCenter.lng - cur.lng) * ease;
+    const zoom = curZoom + (targetZoom - curZoom) * ease;
+
+    map.setView([lat, lng], zoom, { animate: false });
   }
 
   function formatDistance(meters) {
@@ -198,6 +283,10 @@ export function createMissionMap(el) {
     setGhostPin,
     clearGhostPin,
     updateOffscreenIndicator,
+    fitLatLngs,
+    smoothFramePoints,
+    setBaseLayer,
+    getBaseLayer,
     droneMarker,
   };
 }

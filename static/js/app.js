@@ -19,21 +19,36 @@ function sampleDrone(t = Date.now() / 1000) {
   };
 }
 
+const TTL_STEPS = [
+  { minutes: null, label: "Bezterminowy" },
+  { minutes: 15, label: "15 min" },
+  { minutes: 60, label: "1 h" },
+  { minutes: 360, label: "6 h" },
+  { minutes: 1440, label: "24 h" },
+];
+
 const els = {
   telemetry: $("#telemetry"),
   btnLocate: $("#btn-locate"),
+  btnLayers: $("#btn-layers"),
+  layersMenu: $("#layers-menu"),
   btnOffscreen: $("#btn-offscreen"),
   offscreenDist: $("#offscreen-dist"),
   btnMapMenu: $("#btn-map-menu"),
   mapMenu: $("#map-menu"),
   filterActive: $("#filter-active"),
   filterInactive: $("#filter-inactive"),
+  countActive: $("#count-active"),
+  countInactive: $("#count-inactive"),
   backdrop: $("#sheet-backdrop"),
   sheetAdd: $("#sheet-add"),
   sheetDetail: $("#sheet-detail"),
   form: $("#form-add-pin"),
   note: $("#pin-note"),
+  ttl: $("#pin-ttl"),
+  ttlLabel: $("#ttl-label"),
   addCoords: $("#add-coords"),
+  addPinId: $("#add-pin-id"),
   detailStatus: $("#detail-status"),
   detailNote: $("#detail-note"),
   detailMeta: $("#detail-meta"),
@@ -122,6 +137,10 @@ function renderHud() {
 
 function renderPins() {
   mission.setPins(pins, openPinDetail, pinFilters);
+  const activeCount = pins.filter((p) => p.active).length;
+  const inactiveCount = pins.length - activeCount;
+  els.countActive.textContent = String(activeCount);
+  els.countInactive.textContent = String(inactiveCount);
 }
 
 function setMapMenuOpen(open) {
@@ -129,12 +148,40 @@ function setMapMenuOpen(open) {
   els.btnMapMenu.setAttribute("aria-expanded", open ? "true" : "false");
 }
 
+function setLayersMenuOpen(open) {
+  els.layersMenu.hidden = !open;
+  els.btnLayers.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function formatTtl(minutes) {
+  if (minutes == null) return "Bezterminowy";
+  const step = TTL_STEPS.find((s) => s.minutes === minutes);
+  return step ? step.label : `${minutes} min`;
+}
+
+function syncTtlLabel() {
+  const step = TTL_STEPS[Number(els.ttl.value)] || TTL_STEPS[0];
+  els.ttlLabel.textContent = step.label;
+  els.ttl.setAttribute("aria-valuetext", step.label);
+}
+
+function nextPinIdPreview() {
+  return pins.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+}
+
 function openAddSheet(lat, lng) {
   draftCoords = { lat, lng };
+  const previewId = nextPinIdPreview();
   els.note.value = "";
+  els.ttl.value = "0";
+  syncTtlLabel();
   els.addCoords.textContent = formatCoords(lat, lng);
+  els.addPinId.textContent = String(previewId);
+  setFollow(false);
+  setLayersMenuOpen(false);
+  setMapMenuOpen(false);
   openSheet(els.sheetAdd);
-  mission.setGhostPin(lat, lng);
+  mission.setGhostPin(lat, lng, previewId);
   setTimeout(() => els.note.focus(), 450);
 }
 
@@ -158,6 +205,14 @@ function openPinDetail(pin) {
       <dt>Koordynaty</dt>
       <dd>${formatCoords(pin.lat, pin.lng)}</dd>
     </div>
+    <div>
+      <dt>Żywotność</dt>
+      <dd>${formatTtl(pin.ttl_minutes)}</dd>
+    </div>
+    <div>
+      <dt>ID</dt>
+      <dd>${pin.id}</dd>
+    </div>
   `;
   els.btnToggle.textContent = pin.active ? "Dezaktywuj" : "Aktywuj";
   els.btnToggle.className = "btn btn-primary";
@@ -174,7 +229,18 @@ function tickDrone(now) {
   mission.updateDrone(drone);
   renderHud();
 
-  if (follow && now > followResumeAt) {
+  const addingPin = els.sheetAdd.classList.contains("is-open") && draftCoords;
+
+  if (addingPin) {
+    mission.smoothFramePoints(
+      [
+        [drone.lat, drone.lng],
+        [draftCoords.lat, draftCoords.lng],
+      ],
+      { pad: 72, maxZoom: 17, ease: 0.14 },
+    );
+    els.btnOffscreen.hidden = true;
+  } else if (follow && now > followResumeAt) {
     mission.followDrone(drone.lat, drone.lng);
     els.btnOffscreen.hidden = true;
   } else {
@@ -207,6 +273,7 @@ els.form.addEventListener("submit", async (e) => {
       lat,
       lng,
       owner_id: OWNER_ID,
+      ttl_minutes: (TTL_STEPS[Number(els.ttl.value)] || TTL_STEPS[0]).minutes,
     });
     pins = [pin, ...pins.filter((p) => p.id !== pin.id)];
     renderPins();
@@ -241,6 +308,14 @@ mission.map.on("dragstart", () => {
 });
 
 mission.map.on("click", (e) => {
+  if (!els.mapMenu.hidden) {
+    setMapMenuOpen(false);
+    return;
+  }
+  if (!els.layersMenu.hidden) {
+    setLayersMenuOpen(false);
+    return;
+  }
   if (els.sheetAdd.classList.contains("is-open") || els.sheetDetail.classList.contains("is-open")) return;
   openAddSheet(e.latlng.lat, e.latlng.lng);
 });
@@ -255,14 +330,37 @@ els.btnOffscreen.addEventListener("click", (e) => {
   recenterOnDrone();
 });
 
+els.btnLayers.addEventListener("click", (e) => {
+  e.stopPropagation();
+  setMapMenuOpen(false);
+  setLayersMenuOpen(els.layersMenu.hidden);
+});
+
+els.layersMenu.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const btn = e.target.closest("[data-layer]");
+  if (!btn) return;
+  const layer = btn.dataset.layer;
+  mission.setBaseLayer(layer);
+  els.layersMenu.querySelectorAll("[data-layer]").forEach((el) => {
+    const on = el.dataset.layer === layer;
+    el.classList.toggle("is-active", on);
+    el.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  setLayersMenuOpen(false);
+});
+
 els.btnMapMenu.addEventListener("click", (e) => {
   e.stopPropagation();
+  setLayersMenuOpen(false);
   setMapMenuOpen(els.mapMenu.hidden);
 });
 
 els.mapMenu.addEventListener("click", (e) => {
   e.stopPropagation();
 });
+
+els.ttl.addEventListener("input", syncTtlLabel);
 
 els.filterActive.addEventListener("change", () => {
   pinFilters = {
@@ -282,8 +380,10 @@ els.filterInactive.addEventListener("change", () => {
 
 document.addEventListener("click", () => {
   if (!els.mapMenu.hidden) setMapMenuOpen(false);
+  if (!els.layersMenu.hidden) setLayersMenuOpen(false);
 });
 
+syncTtlLabel();
 setFollow(true);
 
 function startCameraFeed() {
