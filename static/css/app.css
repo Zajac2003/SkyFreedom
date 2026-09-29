@@ -133,31 +133,15 @@ h3 {
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  min-width: 0;
 }
 
-.brand-mark {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 0.45rem;
-  background: var(--color-accent);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.brand-mark svg {
-  width: 1rem;
-  height: 1rem;
-  color: var(--color-on-accent);
-}
-
-.brand-name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: -0.03em;
-  line-height: 1;
+.brand-logo {
+  display: block;
+  height: 1.85rem;
+  width: auto;
+  max-width: min(11.5rem, 58vw);
+  object-fit: contain;
 }
 
 /* —— Split: camera / map —— */

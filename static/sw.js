@@ -1,4 +1,4 @@
-const CACHE = "skyfreedom-v35";
+const CACHE = "skyfreedom-v36";
 const SHELL = [
   "/",
   "/static/css/tokens.css",
@@ -8,7 +8,10 @@ const SHELL = [
   "/static/js/app.js",
   "/static/manifest.json",
   "/static/icons/icon-192.png",
+  "/static/icons/icon-512.png",
   "/static/icons/drone.svg",
+  "/static/logo/sygnet.png",
+  "/static/logo/logo_transparent_gold.svg",
 ];
 
 self.addEventListener("install", (event) => {

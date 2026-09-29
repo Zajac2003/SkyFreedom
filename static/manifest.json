@@ -1,5 +1,5 @@
 {
-  "name": "SkyFreedom",
+  "name": "Sky Freedom",
   "short_name": "SkyFreedom",
   "description": "Rekonesans z drona — mapa, kamera, pinezki zagrożeń.",
   "start_url": "/",
@@ -20,6 +20,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/static/logo/sygnet.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
