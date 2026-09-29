@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ecf1ef">
+  <meta name="description" content="SkyFreedom — demonstrator obserwacji z dronów, weryfikacji zdarzeń i alertów dla zespołów terenowych.">
+  <title>SkyFreedom — centrum operacji</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="animations.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Przejdź do treści</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="SkyFreedom — początek pokazu">
+        <svg viewBox="0 0 38 38" aria-hidden="true"><path d="M3 28 17 7l7 10-8 11H3Zm18 0 6-9 8 9H21Z" fill="currentColor"/><path d="m17 7 7 10" stroke="#ecf1ef" stroke-width="2"/></svg>
+        <span>SkyFreedom</span>
+      </a>
+      <div class="operation-identity"><span class="operation-dot" aria-hidden="true"></span><span>Powódź po nawałnicy <small>Sektor Alfa</small></span></div>
+      <div class="topbar-right">
+        <span class="top-simulation">SYMULACJA</span>
+        <div class="airspace-pill" id="airspace-pill"><i aria-hidden="true"></i><span>Przestrzeń otwarta</span></div>
+        <button class="top-action" id="change-role" type="button" hidden>Zmień rolę</button>
+        <button class="top-action reset" id="reset-demo" type="button" hidden>Reset</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="role-screen" id="role-screen" aria-labelledby="role-heading">
+        <div class="role-lead"><h1 id="role-heading">Wybierz swoją rolę</h1><p>Jeden incydent. Trzy punkty widzenia.</p></div>
+        <div class="role-list" role="group" aria-label="Role w symulacji">
+          <button class="role-choice" data-role="commander" type="button"><span class="role-number">01</span><span class="role-name">Dowódca</span><span class="role-detail">Obrazy z 3 dronów i decyzja o alercie</span><span class="role-arrow" aria-hidden="true">↗</span></button>
+          <button class="role-choice" data-role="operator" type="button"><span class="role-number">02</span><span class="role-name">Operator drona</span><span class="role-detail">Kamera, czujniki i zgłoszenie</span><span class="role-arrow" aria-hidden="true">↗</span></button>
+          <button class="role-choice" data-role="ground" type="button"><span class="role-number">03</span><span class="role-name">Jednostka terenowa</span><span class="role-detail">Alert i zalecana trasa</span><span class="role-arrow" aria-hidden="true">↗</span></button>
+        </div>
+        <div class="role-foot"><span>Obraz → weryfikacja → reakcja</span><span>Mapa i dane są poglądowe</span></div>
+      </section>
+
+      <div class="workspace" id="workspace" hidden>
+        <div class="workspace-head">
+          <div><span class="workspace-kicker" id="role-kicker">CENTRUM OPERACJI</span><h1 id="role-title" tabindex="-1">Obraz sytuacji</h1></div>
+          <div class="role-tabs" role="group" aria-label="Widok zespołu">
+            <button data-role="commander" type="button" aria-pressed="false">Dowódca</button>
+            <button data-role="operator" type="button" aria-pressed="false">Operator</button>
+            <button data-role="ground" type="button" aria-pressed="false">Jednostka</button>
+          </div>
+        </div>
+
+        <div class="airspace-banner" id="airspace-banner" role="alert" hidden><strong>Przestrzeń ograniczona</strong><span>Operator powinien zatrzymać symulowany lot.</span><button id="ack-airspace" type="button">Rozumiem</button></div>
+
+        <div class="workspace-grid">
+          <div class="visual-column">
+            <section class="operator-stage" id="operator-stage" aria-labelledby="operator-stage-title" hidden>
+              <div class="section-top dark-top"><div><h2 id="operator-stage-title">Kamera drona 01</h2><span>Droga 14 · obraz poglądowy</span></div><span class="feed-status"><i></i><span id="operator-flight-label">GOTOWY</span></span></div>
+              <div class="camera-primary-actions"><button class="control-primary" id="flight-toggle" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg><span>Uruchom lot</span></button><button class="control-alert" id="operator-report" type="button">Zgłoś zdarzenie</button></div>
+              <div class="hero-camera" id="hero-camera" data-mode="rgb">
+                <img src="assets/drone-road.png" alt="Symulowany widok z drona: przewrócone drzewo blokuje drogę przy wezbranej rzece" id="operator-image">
+                <div class="camera-vignette" aria-hidden="true"></div><div class="camera-scan" aria-hidden="true"></div>
+                <div class="camera-top"><span><i class="rec-dot"></i> DRON 01 <em>·</em> KAMERA A</span><span id="camera-time">00:00:00</span></div>
+                <div class="target-box" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <div class="camera-crosshair" aria-hidden="true">+</div>
+                <div class="camera-bottom"><span id="camera-mode-name">RGB</span><span><span id="camera-zoom-value">1.0×</span> &nbsp; ALT <span id="camera-alt">82</span> m</span></div>
+                <div class="camera-stamp">OBRAZ SYMULOWANY</div>
+              </div>
+              <div class="camera-controls">
+                <div class="segmented" role="group" aria-label="Tryb podglądu kamery"><button class="camera-mode active" data-mode="rgb" type="button" aria-pressed="true">RGB</button><button class="camera-mode" data-mode="thermal" type="button" aria-pressed="false">Termiczny</button></div>
+                <div class="zoom-pair" role="group" aria-label="Przybliżenie kamery"><button id="camera-zoom-out" type="button" aria-label="Oddal kamerę">−</button><button id="camera-zoom-in" type="button" aria-label="Przybliż kamerę">+</button></div>
+              </div>
+            </section>
+
+            <section class="fleet-section" id="fleet-section" aria-labelledby="fleet-title" hidden>
+              <div class="section-top"><div><h2 id="fleet-title">Obraz z dronów</h2><span>Wybierz kamerę, aby sprawdzić odczyty</span></div><span class="section-count">3 kamery</span></div>
+              <div class="fleet-grid" role="group" aria-label="Kamery dronów">
+                <button class="fleet-feed active" data-drone="01" type="button" aria-pressed="true"><img src="assets/drone-road.png" alt="Widok z drona 01 na zablokowaną drogę" loading="eager"><span class="fleet-shade"></span><span class="feed-topline"><strong>DRON 01</strong><small id="fleet-01-status">GOTOWY</small></span><span class="feed-bottomline"><strong>Droga 14</strong><small>Obraz poglądowy</small></span></button>
+                <button class="fleet-feed" data-drone="02" type="button" aria-pressed="false"><img src="assets/drone-river.png" alt="Widok z drona 02 na rozlaną rzekę" loading="lazy"><span class="fleet-shade"></span><span class="feed-topline"><strong>DRON 02</strong><small>PATROL</small></span><span class="feed-bottomline"><strong>Rozlewisko</strong><small>Obraz poglądowy</small></span></button>
+                <button class="fleet-feed" data-drone="03" type="button" aria-pressed="false"><img src="assets/drone-smoke.png" alt="Widok z drona 03 na skraj lasu i lekki dym" loading="lazy"><span class="fleet-shade"></span><span class="feed-topline"><strong>DRON 03</strong><small>PATROL</small></span><span class="feed-bottomline"><strong>Skraj lasu</strong><small>Obraz poglądowy</small></span></button>
+              </div>
+            </section>
+
+            <section class="sensor-section" id="sensor-section" aria-labelledby="sensor-title" hidden>
+              <div class="sensor-heading"><h2 id="sensor-title">Czujniki <span id="sensor-drone">drona 01</span></h2><span id="sensor-status">Odczyty symulowane</span></div>
+              <div class="sensor-grid">
+                <div class="sensor-cell"><span>Temperatura</span><strong><span id="sensor-temperature">21.4</span><small>°C</small></strong><i class="sensor-bar"><b id="bar-temperature"></b></i></div>
+                <div class="sensor-cell"><span>Wilgotność</span><strong><span id="sensor-humidity">68</span><small>%</small></strong><i class="sensor-bar"><b id="bar-humidity"></b></i></div>
+                <div class="sensor-cell"><span>Dym</span><strong><span id="sensor-smoke">0.02</span><small>ppm</small></strong><i class="sensor-bar"><b id="bar-smoke"></b></i></div>
+                <div class="sensor-cell"><span>Hałas</span><strong><span id="sensor-noise">54</span><small>dB</small></strong><i class="sensor-bar"><b id="bar-noise"></b></i></div>
+                <div class="sensor-cell"><span>Bateria</span><strong><span id="sensor-battery">78</span><small>%</small></strong><i class="sensor-bar"><b id="bar-battery"></b></i></div>
+              </div>
+            </section>
+
+            <section class="map-panel" aria-labelledby="map-title">
+              <div class="section-top map-top"><div><h2 id="map-title">Mapa sektora</h2><span>Podgląd satelitarny · dane poglądowe</span></div><div class="map-filters" role="group" aria-label="Pokaż na mapie"><button class="map-filter active" data-layer="all" type="button" aria-pressed="true">Wszystko</button><button class="map-filter" data-layer="drones" type="button" aria-pressed="false">Drony</button><button class="map-filter" data-layer="incident" type="button" aria-pressed="false">Zdarzenia</button></div></div>
+              <div class="map-viewport" id="map-viewport" aria-label="Symulowana mapa satelitarna sektora Alfa">
+                <div class="map-world" id="map-world"><img class="satellite-image" src="assets/sector-satellite.png" alt="Fikcyjny satelitarny widok lasu, rzeki, mostu i pobliskiej zabudowy" draggable="false">
+                  <svg class="map-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="route-halo" d="M25 69 C36 62, 39 54, 48 47 S57 39, 64 31"/><path class="route-line" d="M25 69 C36 62, 39 54, 48 47 S57 39, 64 31"/></svg>
+                  <div class="map-marker drone-marker selected" id="drone-marker" style="--x:25%;--y:69%"><span class="map-marker-dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8 8 8m0-8-8 8M5 5l3 3m11-3-3 3M5 19l3-3m11 3-3-3"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="map-marker-label">Dron 01</span></div>
+                  <div class="map-marker drone-marker" data-drone-marker="02" style="--x:71%;--y:64%"><span class="map-marker-dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8 8 8m0-8-8 8M5 5l3 3m11-3-3 3M5 19l3-3m11 3-3-3"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="map-marker-label">Dron 02</span></div>
+                  <div class="map-marker drone-marker" data-drone-marker="03" style="--x:19%;--y:22%"><span class="map-marker-dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8 8 8m0-8-8 8M5 5l3-3m11-3-3 3M5 19l3-3m11 3-3-3"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="map-marker-label">Dron 03</span></div>
+                  <div class="map-marker unit-marker" style="--x:58%;--y:46%"><span class="map-marker-dot">04</span><span class="map-marker-label">Jednostka 04</span></div>
+                  <div class="map-marker incident-marker" id="incident-marker" style="--x:49%;--y:40%" hidden><span class="map-marker-dot">!</span><span class="map-marker-label">Droga 14</span></div>
+                  <div class="map-label map-label-road" style="--x:54%;--y:33%">DROGA 14</div><div class="map-label map-label-river" style="--x:58%;--y:74%">RZEKA</div>
+                </div>
+                <div class="map-overlay-tag">SEKTOR ALFA <span>·</span> SYMULACJA</div>
+                <div class="map-zoom" role="group" aria-label="Sterowanie mapą"><button id="map-zoom-in" type="button" aria-label="Przybliż mapę">+</button><button id="map-zoom-out" type="button" aria-label="Oddal mapę">−</button><button id="map-reset-view" type="button" aria-label="Wyśrodkuj mapę"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg></button></div>
+                <div class="map-scale">Skala poglądowa</div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="decision-column" aria-label="Zdarzenia i działania">
+            <div class="situation-strip"><span><i id="situation-dot"></i> <b id="situation-label">Brak aktywnego alertu</b></span><span id="incident-count">00</span></div>
+            <section class="incident-panel" aria-labelledby="incident-title"><div class="aside-heading"><h2 id="incident-title">Zdarzenie</h2><span id="incident-status">BRAK</span></div>
+              <div class="incident-empty" id="incident-empty"><div class="empty-symbol" aria-hidden="true">✓</div><strong>Trasa bez alertu</strong><button id="prompt-report" type="button">Zasymuluj zgłoszenie</button></div>
+              <div class="incident-content" id="incident-content" hidden><div class="incident-photo"><img src="assets/drone-road.png" alt="Poglądowy obraz z drona: drzewo na drodze" loading="lazy"><span>DRON 01 · OBRAZ POGLĄDOWY</span></div><h3 id="incident-heading">Droga 14 zablokowana</h3><p id="incident-description">Przewrócone drzewo blokuje dojazd do punktu ewakuacji.</p><div class="incident-meta"><span id="incident-priority">Wysoki priorytet</span><span>Źródło: Dron 01</span></div><div class="ground-guidance" id="ground-guidance" hidden><strong>Omiń drogę 14</strong><span>Objazd przez most północny.</span></div><div class="incident-actions" id="incident-actions"></div></div>
+            </section>
+            <div class="sidebar-meta"><div><span>Przestrzeń</span><strong id="sidebar-airspace">Otwarta</strong></div><button id="safety-control" type="button">Symuluj ograniczenie</button></div>
+            <details class="history" id="history"><summary>Historia operacji <span id="history-count">3</span></summary><ol id="timeline"></ol></details>
+            <p class="disclaimer">Prototyp demonstracyjny. Nie zastępuje procedur lotniczych ani decyzji służb.</p>
+          </aside>
+        </div>
+      </div>
+    </main>
+    <footer class="footer"><span>SkyFreedom</span><span>Mapa, kamery i telemetria są symulowane</span></footer>
+  </div>
+
+  <div class="dialog-backdrop" id="report-overlay" hidden><div class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title"><div class="dialog-head"><div><span>DRON 01</span><h2 id="report-title">Zgłoś zdarzenie</h2></div><button id="close-report" type="button" aria-label="Zamknij formularz">×</button></div><form id="report-form"><label for="event-type">Co widać?</label><select id="event-type"><option value="blocked">Zablokowana droga</option><option value="flood">Podtopienie</option><option value="infrastructure">Uszkodzona infrastruktura</option><option value="other">Inne zagrożenie</option></select><label for="event-description">Krótki opis</label><textarea id="event-description" rows="3">Przewrócone drzewo blokuje przejazd do punktu ewakuacji przy drodze 14.</textarea><fieldset><legend>Priorytet</legend><label><input type="radio" name="severity" value="medium">Średni</label><label><input type="radio" name="severity" value="high" checked>Wysoki</label><label><input type="radio" name="severity" value="critical">Krytyczny</label></fieldset><div class="dialog-foot"><span>Sektor Alfa · pozycja poglądowa</span><button type="submit">Przekaż do dowódcy</button></div></form></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

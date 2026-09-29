@@ -1,0 +1,19 @@
+/* Movement follows the simulated camera, flight route, and state changes. */
+.hero-camera.flying>img{animation:camera-flight 16s ease-in-out infinite alternate}
+.hero-camera.flying .camera-scan{opacity:1;animation:camera-sweep 5s linear infinite}
+.flight-active .fleet-feed:first-child img{animation:camera-flight 18s ease-in-out infinite alternate}
+.flight-active .map-viewport .route-line{animation:route-travel 1.1s linear infinite}
+.flight-active #drone-marker .map-marker-dot{animation:drone-beacon 2s ease-in-out infinite}
+.incident-marker:not([hidden]) .map-marker-dot{animation:incident-beacon 1.7s ease-out infinite}
+.rec-dot{animation:recording 1.8s ease-in-out infinite}
+.incident-content.state-change{animation:status-arrival .36s cubic-bezier(.16,1,.3,1) both}
+.toast:not([hidden]){animation:toast-arrival .25s cubic-bezier(.16,1,.3,1) both}
+@keyframes camera-flight{0%{transform:scale(calc(var(--camera-scale,1.05)*1.01)) translate(-.5%,-.4%)}100%{transform:scale(calc(var(--camera-scale,1.05)*1.05)) translate(.55%,.45%)}}
+@keyframes camera-sweep{0%{transform:translateY(-40%)}100%{transform:translateY(42%)}}
+@keyframes route-travel{to{stroke-dashoffset:-34}}
+@keyframes drone-beacon{0%,100%{box-shadow:0 0 0 6px #9cf5c25d,0 2px 8px #001b1ba3}50%{box-shadow:0 0 0 11px #9cf5c224,0 2px 8px #001b1ba3}}
+@keyframes incident-beacon{0%{box-shadow:0 0 0 0 #ff9a77a6,0 2px 8px #001b1ba3}75%,100%{box-shadow:0 0 0 15px #ff9a7700,0 2px 8px #001b1ba3}}
+@keyframes recording{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes status-arrival{from{transform:translateY(7px);opacity:.7}to{transform:translateY(0);opacity:1}}
+@keyframes toast-arrival{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.hero-camera.flying>img,.hero-camera.flying .camera-scan,.flight-active .fleet-feed:first-child img,.flight-active .map-viewport .route-line,.flight-active #drone-marker .map-marker-dot,.incident-marker:not([hidden]) .map-marker-dot,.rec-dot,.incident-content.state-change,.toast:not([hidden]){animation:none!important}}

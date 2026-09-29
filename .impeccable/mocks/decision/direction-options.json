@@ -1,0 +1,136 @@
+{
+  "title": "Wybierz kierunek SkyFreedom",
+  "question": "Który interfejs najłatwiej obsłużysz, gdy liczy się czas? Wybierz kierunek, który mam dalej dopracować.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Karta przekazania",
+      "kicker": "KONCEPCJA",
+      "lineage": "Karty meldunkowe i przekazanie dyżuru w działaniach terenowych",
+      "thesis": "Każda rola dostaje tę samą sytuację i od razu widzi swój następny krok.",
+      "palette": ["#F2F4ED", "#183A43", "#2D7162", "#C9553D"],
+      "materials": ["jasny papier polowy", "czytelny druk", "znacznik priorytetu"],
+      "viewport": "Jasny ekran startowy pokazuje nazwę operacji i trzy duże, opisane role. Każda opcja zapowiada zadanie tej roli; u dołu widać krótką kolejność zgłoszenie → weryfikacja → reakcja.",
+      "risk": "Może przypominać formularz. Zachowaj bezpośrednie przyciski i duże pola, bez ozdobnego papieru.",
+      "raised": [
+        {"from": "tablica dowodzenia", "raise": "Jedno zdarzenie ma wyraźny priorytet, a reszta informacji schodzi na drugi plan."},
+        {"from": "katalog kafelków", "raise": "Wybór roli jest małym, zamkniętym zestawem; bez poziomego przewijania."},
+        {"from": "plakat pop", "raise": "Wybrana opcja ma mocny kontrast i jednoznaczny stan aktywny."},
+        {"from": "terminal fosforowy", "raise": "Historia pozostaje prostą, tekstową osią zdarzeń."},
+        {"from": "karty HyperCard", "raise": "Powrót do wyboru roli i zmiana widoku są zawsze łatwe do znalezienia."},
+        {"from": "sekwencja origami", "raise": "Postęp zgłoszenia jest pokazany jako krótka i odwracalna sekwencja."},
+        {"from": "ogród grawitacyjnego deszczu", "raise": "Legenda mapy pozostaje nieruchoma i czytelna niezależnie od widoku."}
+      ],
+      "comp": ".impeccable/mocks/decision/assigned.png"
+    },
+    {
+      "id": "model-pick",
+      "label": "Tablica operacji",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "Tablica odprawy i wspólny obraz sytuacji zespołu",
+      "thesis": "Najpierw widzisz mapę i sytuację; rola wybiera tylko narzędzia potrzebne do działania.",
+      "palette": ["#F5F7F4", "#172F42", "#2563A6", "#D9772D"],
+      "materials": ["matowa jasna powierzchnia", "warstwy mapy", "czytelne znaczniki"],
+      "viewport": "Na pierwszym ekranie jasna mapa zajmuje środek, nad nią znajduje się kontekst operacji, a trzy szerokie wybory ról prowadzą do odpowiednich zadań. Panel decyzji jest widoczny bez przewijania.",
+      "risk": "Znany układ operacyjny łatwo ponownie przeładować; mapa nie może konkurować z zadaniem użytkownika.",
+      "comp": ".impeccable/mocks/decision/model-pick.png"
+    },
+    {
+      "id": "challenger-teletext",
+      "label": "Indeks operacyjny",
+      "verdict": "declined",
+      "lineage": "Teletext i indeks stron informacyjnych",
+      "palette": ["#0000C0", "#FFFFFF", "#FFFF00", "#00A040"],
+      "materials": ["blokowa siatka", "numerowane wiersze"],
+      "case": "Szybki indeks stron i statusów, lecz retro-kodowanie osłabia rozpoznanie sytuacji kryzysowej.",
+      "kept": "Najważniejszy element ma pierwszeństwo, a sąsiednie informacje schodzą z wizualnego planu.",
+      "risk": "Nie używaj nostalgicznego układu stron ani pikselowej typografii.",
+      "hero": "https://impeccable.style/worlds/cards/broadcast-programming-teletext-service-hero.webp"
+    },
+    {
+      "id": "challenger-microfiche",
+      "label": "Czytnik archiwum",
+      "verdict": "declined",
+      "lineage": "Czytniki mikrofilmów w bibliotekach",
+      "palette": ["#101418", "#9FB4C0"],
+      "materials": ["ziarno filmu", "podświetlana szyba"],
+      "case": "Trwałe skupienie jest ciekawe, ale wyszukiwanie archiwum nie przypomina pracy zespołu w terenie.",
+      "kept": "Jeden czytelny obszar roboczy zamiast dekoracyjnych paneli.",
+      "risk": "Ciemny, archiwalny wygląd przeczy ustalonemu jasnemu kierunkowi.",
+      "hero": "https://impeccable.style/worlds/cards/archives-microfiche-reader-hero.webp"
+    },
+    {
+      "id": "challenger-yeye",
+      "label": "Okładka singla",
+      "verdict": "declined",
+      "lineage": "Francuskie okładki pop z lat sześćdziesiątych",
+      "palette": ["#ED6B28", "#38A9A1", "#FFFFFF"],
+      "materials": ["płaski nasycony kolor", "druk portretowy"],
+      "case": "Mocny kontrast może przyciągać uwagę, lecz portret i dekoracyjna typografia nie niosą informacji operacyjnej.",
+      "kept": "Stan aktywny jest mocno odróżniony od pozostałych wyborów.",
+      "risk": "Nie wprowadzaj portretów ani wielu nasyconych powierzchni.",
+      "hero": "https://impeccable.style/worlds/cards/posters-covers-sleeves-yeye-pop-sleeve-hero.webp"
+    },
+    {
+      "id": "challenger-phosphor",
+      "label": "Terminal zdarzeń",
+      "verdict": "declined",
+      "lineage": "Zielony terminal fosforowy",
+      "palette": ["#07110E", "#34D399", "#94F7C5"],
+      "materials": ["ciemne szkło", "monospace"],
+      "case": "Oś czasu ma sens, ale stały terminal utrudnia szybkie rozpoznanie mapy, ról i zadań.",
+      "kept": "Zdarzenia mają trwałą chronologię i nie znikają razem z powiadomieniem.",
+      "risk": "Nie używaj ciemnego terminala ani monospace dla wszystkich treści.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-phosphor-terminal-midnight-hero.webp"
+    },
+    {
+      "id": "challenger-hypercard",
+      "label": "Stos kart",
+      "verdict": "declined",
+      "lineage": "Karty HyperCard z widocznym przejściem między ekranami",
+      "palette": ["#FFFFFF", "#111111", "#BEBEBE"],
+      "materials": ["czarno-białe karty", "ręcznie rysowane obramowania"],
+      "case": "Przejrzyste następne kroki pomagają w nauce, ale edytowalne, połączone karty dodają niepotrzebny model nawigacji.",
+      "kept": "Powrót i zmiana roli są zawsze jawne.",
+      "risk": "Nie naśladuj ręcznego rysunku ani nawigacji jako stosu kartek.",
+      "hero": "https://impeccable.style/worlds/cards/medium-native-hypercard-stack-shoebox-hero.webp"
+    },
+    {
+      "id": "challenger-origami",
+      "label": "Kroki akcji",
+      "verdict": "declined",
+      "lineage": "Sekwencja składania origami",
+      "palette": ["#C73228", "#F4EEE0", "#C99A3A", "#171717"],
+      "materials": ["czerwony papier washi", "widoczne linie zgięć"],
+      "case": "Etapy pomagają zrozumieć obieg zgłoszenia, ale trzy role nie powinny wyglądać jak trzydzieści dwa kroki instrukcji.",
+      "kept": "Pokaż krótki, odwracalny postęp: zgłoszono, potwierdzono, przekazano.",
+      "risk": "Unikaj ozdobnych metafor składania i niepotrzebnego ruchu.",
+      "hero": "https://impeccable.style/worlds/cards/paper-folds-pleats-deployable-orizuru-crane-sequence-hero.webp"
+    },
+    {
+      "id": "challenger-gravity-rain",
+      "label": "Mapa przepływu",
+      "verdict": "declined",
+      "lineage": "Surrealistyczne pola i kierunki przepływu",
+      "palette": ["#39443D", "#2B7DA5", "#D54B3D", "#E9E3CC"],
+      "materials": ["wektory przepływu", "kolorowe strefy"],
+      "case": "Kierunki na mapie mogą być czytelne, ale nierealne pola sił rozpraszają od położenia i zaleceń.",
+      "kept": "Legenda mapy pozostaje pozioma i statyczna.",
+      "risk": "Nie deformuj mapy ani podpisów.",
+      "hero": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-gravity-rain-garden-hero.webp"
+    }
+  ],
+  "reroll": {"registers": ["safer", "bolder"]},
+  "buildPath": {"value": "comp", "toggle": true},
+  "canon": true,
+  "canonCard": {
+    "label": "Klasyczny pulpit operacyjny",
+    "thesis": "Znany, jasny układ: menu ról, mapa i uporządkowany panel zdarzenia.",
+    "palette": ["#FFFFFF", "#172033", "#2563EB", "#D97706"],
+    "materials": ["czysta siatka", "kontrastowe etykiety", "standardowe kontrolki"],
+    "viewport": "Prosty pulpit z górnym kontekstem operacji, trzema wyborami ról, centralną mapą i jednym panelem aktualnego alertu.",
+    "risk": "Może przypominać generyczny panel; niech hierarchia wynika z zadania, nie z kafelków.",
+    "comp": ".impeccable/mocks/decision/canon.png"
+  },
+  "steer": true
+}
