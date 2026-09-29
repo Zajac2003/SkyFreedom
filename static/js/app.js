@@ -386,6 +386,79 @@ document.addEventListener("click", () => {
 syncTtlLabel();
 setFollow(true);
 
+function initSplitter() {
+  const split = $("#split");
+  const splitter = $("#splitter");
+  if (!split || !splitter) return;
+
+  const MIN = 15;
+  const MAX = 70;
+  const KEY = "skyfreedom-split-camera";
+
+  const saved = Number(localStorage.getItem(KEY));
+  if (Number.isFinite(saved) && saved >= MIN && saved <= MAX) {
+    split.style.setProperty("--split-camera", `${saved}%`);
+    splitter.setAttribute("aria-valuenow", String(Math.round(saved)));
+  }
+
+  function applyPercent(pct) {
+    const clamped = Math.min(MAX, Math.max(MIN, pct));
+    split.style.setProperty("--split-camera", `${clamped}%`);
+    splitter.setAttribute("aria-valuenow", String(Math.round(clamped)));
+    localStorage.setItem(KEY, String(clamped));
+    mission.map.invalidateSize({ animate: false });
+  }
+
+  function percentFromClientY(clientY) {
+    const rect = split.getBoundingClientRect();
+    if (rect.height <= 0) return 32;
+    return ((clientY - rect.top) / rect.height) * 100;
+  }
+
+  let dragging = false;
+
+  splitter.addEventListener("pointerdown", (e) => {
+    if (e.button != null && e.button !== 0) return;
+    dragging = true;
+    split.classList.add("is-resizing");
+    splitter.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  splitter.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    applyPercent(percentFromClientY(e.clientY));
+  });
+
+  const endDrag = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    split.classList.remove("is-resizing");
+    try {
+      splitter.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    mission.map.invalidateSize({ animate: false });
+  };
+
+  splitter.addEventListener("pointerup", endDrag);
+  splitter.addEventListener("pointercancel", endDrag);
+
+  splitter.addEventListener("keydown", (e) => {
+    const now = Number(splitter.getAttribute("aria-valuenow")) || 32;
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      applyPercent(now - 3);
+    } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+      e.preventDefault();
+      applyPercent(now + 3);
+    }
+  });
+}
+
+initSplitter();
+
 function startCameraFeed() {
   const video = $("#camera-feed");
   const placeholder = $("#camera-placeholder");

@@ -92,7 +92,7 @@ h3 {
   max-height: 100dvh;
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto 1fr;
   background: var(--color-bg);
   color: var(--color-text-on-dark);
 }
@@ -160,12 +160,20 @@ h3 {
   line-height: 1;
 }
 
+/* —— Split: camera / map —— */
+.split {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 /* —— Camera —— */
 .camera {
   position: relative;
-  height: var(--camera-h);
-  min-height: 9rem;
-  max-height: 14rem;
+  flex: 0 0 var(--split-camera, 32%);
+  min-height: 4.5rem;
   overflow: hidden;
   background: #05080f;
   isolation: isolate;
@@ -254,8 +262,79 @@ h3 {
 /* —— Map stage —— */
 .map-stage {
   position: relative;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: 8rem;
   background: #1a2332;
+}
+
+.splitter {
+  flex: 0 0 0;
+  position: relative;
+  z-index: 6;
+  height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: row-resize;
+  touch-action: none;
+  user-select: none;
+}
+
+.splitter__grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(200px, 70%);
+  height: 1.15rem;
+  border-radius: 999px;
+  background: rgb(11 18 32 / 0.78);
+  border: 1px solid rgb(244 246 248 / 0.14);
+  box-shadow: 0 4px 14px rgb(11 18 32 / 0.35);
+  backdrop-filter: blur(8px);
+  transition:
+    background var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease);
+}
+
+.splitter__grip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2rem;
+  height: 0.2rem;
+  border-radius: 999px;
+  background: rgb(244 246 248 / 0.45);
+  transform: translate(-50%, -50%);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+.splitter:hover .splitter__grip,
+.splitter:focus-visible .splitter__grip,
+.split.is-resizing .splitter__grip {
+  background: rgb(11 18 32 / 0.9);
+  border-color: rgb(232 93 4 / 0.55);
+}
+
+.splitter:hover .splitter__grip::after,
+.splitter:focus-visible .splitter__grip::after,
+.split.is-resizing .splitter__grip::after {
+  background: var(--color-accent);
+}
+
+.splitter:focus-visible {
+  outline: none;
+}
+
+.split.is-resizing {
+  cursor: row-resize;
+}
+
+.split.is-resizing .camera,
+.split.is-resizing .map-stage {
+  pointer-events: none;
 }
 
 #map {

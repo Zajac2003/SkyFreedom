@@ -1,4 +1,4 @@
-const CACHE = "skyfreedom-v31";
+const CACHE = "skyfreedom-v33";
 const SHELL = [
   "/",
   "/static/css/tokens.css",

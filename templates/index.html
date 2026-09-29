@@ -35,7 +35,8 @@
         </div>
       </header>
 
-      <section class="camera" aria-label="Widok z kamery drona">
+      <div class="split" id="split" style="--split-camera: 32%">
+      <section class="camera" id="camera" aria-label="Widok z kamery drona">
         <video
           class="camera-feed"
           id="camera-feed"
@@ -56,7 +57,22 @@
         </div>
       </section>
 
-      <section class="map-stage" aria-label="Mapa misji">
+      <div
+        class="splitter"
+        id="splitter"
+        role="separator"
+        aria-orientation="horizontal"
+        aria-controls="camera map-stage"
+        aria-valuemin="15"
+        aria-valuemax="70"
+        aria-valuenow="32"
+        aria-label="Zmień wysokość kamery i mapy"
+        tabindex="0"
+      >
+        <span class="splitter__grip" aria-hidden="true"></span>
+      </div>
+
+      <section class="map-stage" id="map-stage" aria-label="Mapa misji">
         <div id="map" role="application" tabindex="-1"></div>
         <button class="map-menu-btn" type="button" id="btn-map-menu" aria-label="Filtry pinezek" aria-expanded="false" aria-controls="map-menu">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -105,6 +121,7 @@
           </button>
         </div>
       </section>
+      </div>
 
       <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
 
