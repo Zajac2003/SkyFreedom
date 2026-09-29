@@ -1,0 +1,52 @@
+/* SkyFreedom design tokens */
+:root {
+  --color-bg: #0b1220;
+  --color-surface: #f4f6f8;
+  --color-surface-elevated: #ffffff;
+  --color-text: #1a2332;
+  --color-text-on-dark: #f4f6f8;
+  --color-muted: #6b7785;
+  --color-line: rgb(26 35 50 / 0.1);
+  --color-line-dark: rgb(244 246 248 / 0.12);
+
+  --color-accent: #e85d04;
+  --color-accent-hover: #d04f00;
+  --color-accent-active: #b84400;
+  --color-accent-soft: #ffe8d6;
+  --color-on-accent: #ffffff;
+
+  --color-live: #1b9aaa;
+  --color-live-soft: rgb(27 154 170 / 0.18);
+  --color-danger: #c4453c;
+  --color-success: #2f8f6a;
+
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.75rem;
+  --fs-hud: 2rem;
+
+  --lh-tight: 1.1;
+  --lh-body: 1.45;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-pill: 999px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 420ms;
+  --duration-fast: 180ms;
+
+  --header-h: 3rem;
+  --camera-h: 32dvh;
+  --app-max: 430px;
+  --page-x: 0.9rem;
+  --tap: 2.75rem;
+  --shadow-phone: 0 24px 64px rgb(11 18 32 / 0.35);
+  --shadow-fab: 0 8px 28px rgb(232 93 4 / 0.45);
+}
