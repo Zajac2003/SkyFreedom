@@ -47,15 +47,47 @@ export function createMissionMap(el) {
     }),
   };
 
+  const satelliteLabels = L.layerGroup([
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 19, opacity: 0.95 },
+    ),
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 19, opacity: 0.95 },
+    ),
+  ]);
+
   let activeLayer = "satellite";
+  let labelsVisible = true;
   layers.satellite.addTo(map);
+  satelliteLabels.addTo(map);
+
+  function syncSatelliteLabels() {
+    const want = activeLayer === "satellite" && labelsVisible;
+    const on = map.hasLayer(satelliteLabels);
+    if (want && !on) satelliteLabels.addTo(map);
+    if (!want && on) map.removeLayer(satelliteLabels);
+  }
 
   function setBaseLayer(name) {
     if (!layers[name] || name === activeLayer) return activeLayer;
     map.removeLayer(layers[activeLayer]);
+    if (map.hasLayer(satelliteLabels)) map.removeLayer(satelliteLabels);
     layers[name].addTo(map);
     activeLayer = name;
+    syncSatelliteLabels();
     return activeLayer;
+  }
+
+  function setLabelsVisible(on) {
+    labelsVisible = Boolean(on);
+    syncSatelliteLabels();
+    return labelsVisible;
+  }
+
+  function getLabelsVisible() {
+    return labelsVisible;
   }
 
   function getBaseLayer() {
@@ -287,6 +319,8 @@ export function createMissionMap(el) {
     smoothFramePoints,
     setBaseLayer,
     getBaseLayer,
+    setLabelsVisible,
+    getLabelsVisible,
     droneMarker,
   };
 }

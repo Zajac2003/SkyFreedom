@@ -38,6 +38,7 @@ const els = {
   mapMenu: $("#map-menu"),
   filterActive: $("#filter-active"),
   filterInactive: $("#filter-inactive"),
+  filterLabels: $("#filter-labels"),
   countActive: $("#count-active"),
   countInactive: $("#count-inactive"),
   backdrop: $("#sheet-backdrop"),
@@ -376,6 +377,10 @@ els.filterInactive.addEventListener("change", () => {
     inactive: els.filterInactive.checked,
   };
   renderPins();
+});
+
+els.filterLabels.addEventListener("change", () => {
+  mission.setLabelsVisible(els.filterLabels.checked);
 });
 
 document.addEventListener("click", () => {
