@@ -1,4 +1,4 @@
-const CACHE = "skyfreedom-v36";
+const CACHE = "skyfreedom-v37";
 const SHELL = [
   "/",
   "/static/css/tokens.css",
@@ -9,6 +9,7 @@ const SHELL = [
   "/static/manifest.json",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png",
+  "/static/icons/favicon-32.png",
   "/static/icons/drone.svg",
   "/static/logo/sygnet.png",
   "/static/logo/logo_transparent_gold.svg",
