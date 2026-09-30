@@ -1,0 +1,31 @@
+{
+  "name": "Sky Freedom",
+  "short_name": "SkyFreedom",
+  "description": "Rekonesans z drona — mapa, kamera, pinezki zagrożeń.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1220",
+  "theme_color": "#0B1220",
+  "lang": "pl",
+  "icons": [
+    {
+      "src": "/static/logo/sygnet.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

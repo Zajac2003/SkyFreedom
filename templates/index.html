@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pl" translate="no" class="notranslate">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0B1220">
+    <meta name="google" content="notranslate">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="SkyFreedom — rekonesans z drona: mapa, kamera, pinezki zagrożeń.">
+    <title>SkyFreedom</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/static/logo/sygnet.png?v=2" type="image/png">
+    <link rel="icon" href="/static/icons/favicon-32.png?v=2" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link rel="stylesheet" href="/static/css/tokens.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+  </head>
+  <body>
+    <a class="skip" href="#map">Przejdź do mapy</a>
+    <div class="app" id="app">
+      <header class="topbar">
+        <div class="brand">
+          <img
+            class="brand-logo"
+            src="/static/logo/logo_transparent_gold.svg"
+            alt="Sky Freedom"
+            width="160"
+            height="40"
+            decoding="async"
+          >
+        </div>
+      </header>
+
+      <div class="split" id="split" style="--split-camera: 32%">
+      <section class="camera" id="camera" aria-label="Widok z kamery drona">
+        <video
+          class="camera-feed"
+          id="camera-feed"
+          src="/static/drone_pov_footage.mp4"
+          muted
+          playsinline
+          loop
+          autoplay
+          preload="auto"
+        ></video>
+        <div class="camera-placeholder" id="camera-placeholder" hidden>
+          <strong>Widok z drona</strong>
+          <span>Ładowanie streamu…</span>
+        </div>
+        <div class="camera-live" id="camera-live" aria-live="polite">
+          <span class="camera-live-dot" aria-hidden="true"></span>
+          <span>LIVE</span>
+        </div>
+      </section>
+
+      <div
+        class="splitter"
+        id="splitter"
+        role="separator"
+        aria-orientation="horizontal"
+        aria-controls="camera map-stage"
+        aria-valuemin="15"
+        aria-valuemax="70"
+        aria-valuenow="32"
+        aria-label="Zmień wysokość kamery i mapy"
+        tabindex="0"
+      >
+        <span class="splitter__grip" aria-hidden="true"></span>
+      </div>
+
+      <section class="map-stage" id="map-stage" aria-label="Mapa misji">
+        <div id="map" role="application" tabindex="-1"></div>
+        <button class="map-menu-btn" type="button" id="btn-map-menu" aria-label="Filtry pinezek" aria-expanded="false" aria-controls="map-menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 5h16l-5.5 6.5V18l-5 2.5v-9L4 5z"/>
+          </svg>
+        </button>
+        <div class="map-menu" id="map-menu" hidden role="menu" aria-label="Filtry pinezek">
+          <label class="map-menu__item">
+            <input type="checkbox" id="filter-active" checked>
+            <span>Aktywne</span>
+            <span class="map-menu__count" id="count-active">0</span>
+          </label>
+          <label class="map-menu__item">
+            <input type="checkbox" id="filter-inactive" checked>
+            <span>Nieaktywne</span>
+            <span class="map-menu__count" id="count-inactive">0</span>
+          </label>
+          <label class="map-menu__item">
+            <input type="checkbox" id="filter-labels" checked>
+            <span>Nazwy</span>
+          </label>
+        </div>
+        <p class="telemetry" id="telemetry" aria-live="polite">alt — · hd —°</p>
+        <button class="offscreen-drone" type="button" id="btn-offscreen" hidden aria-label="Dron poza widokiem">
+          <span class="offscreen-drone__arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 5l6 12H6L12 5z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="offscreen-drone__dist" id="offscreen-dist">—</span>
+        </button>
+        <div class="map-fabs">
+          <button class="layers-btn" type="button" id="btn-layers" aria-label="Warstwy mapy" aria-expanded="false" aria-controls="layers-menu" title="Warstwy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 4l8 4-8 4-8-4 8-4z"/>
+              <path d="M4 12l8 4 8-4"/>
+              <path d="M4 16l8 4 8-4"/>
+            </svg>
+          </button>
+          <div class="layers-menu" id="layers-menu" hidden role="menu" aria-label="Warstwy mapy">
+            <button type="button" class="layers-menu__item is-active" data-layer="satellite" role="menuitemradio" aria-checked="true">Satelita</button>
+            <button type="button" class="layers-menu__item" data-layer="streets" role="menuitemradio" aria-checked="false">Mapa</button>
+          </div>
+          <button class="locate-btn" type="button" id="btn-locate" aria-label="Wróć do drona" title="Wróć do drona">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+      </section>
+      </div>
+
+      <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+
+      <aside class="sheet sheet-add" id="sheet-add" aria-hidden="true" role="dialog" aria-labelledby="sheet-add-title">
+        <div class="sheet-head">
+          <h2 class="sheet-title" id="sheet-add-title">Nowa pinezka</h2>
+          <button class="sheet-close" type="button" data-close-sheet aria-label="Zamknij">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M6 6l12 12M18 6 6 18"/>
+            </svg>
+          </button>
+        </div>
+        <form id="form-add-pin" class="sheet-form" autocomplete="off">
+          <div class="float-field">
+            <textarea id="pin-note" name="note" maxlength="500" required placeholder="Np. Most niesprawny, wysadzony przez drona"></textarea>
+            <label for="pin-note">Notatka</label>
+          </div>
+          <div class="ttl-field">
+            <div class="ttl-field__head">
+              <span>Żywotność</span>
+              <span id="ttl-label">Bezterminowy</span>
+            </div>
+            <input class="ttl-slider" id="pin-ttl" type="range" min="0" max="4" step="1" value="0" aria-valuetext="Bezterminowy">
+            <div class="ttl-ticks" aria-hidden="true">
+              <span>∞</span>
+              <span>15m</span>
+              <span>1h</span>
+              <span>6h</span>
+              <span>24h</span>
+            </div>
+          </div>
+          <p class="coords-line" id="add-coords" aria-live="polite">—</p>
+          <dl class="pin-meta pin-meta--compact">
+            <div>
+              <dt>ID</dt>
+              <dd id="add-pin-id">—</dd>
+            </div>
+          </dl>
+          <button class="btn btn-primary" type="submit" id="btn-save-pin">Dodaj pinezkę</button>
+        </form>
+      </aside>
+
+      <aside class="sheet" id="sheet-detail" aria-hidden="true" role="dialog" aria-labelledby="sheet-detail-title">
+        <div class="sheet-head">
+          <div class="sheet-title-row">
+            <h2 class="sheet-title" id="sheet-detail-title">Pinezka</h2>
+            <span class="status-dot" id="detail-status" data-active="true" aria-label="Aktywna"></span>
+          </div>
+          <button class="sheet-close" type="button" data-close-sheet aria-label="Zamknij">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <path d="M6 6l12 12M18 6 6 18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pin-detail">
+          <div class="pin-name-block">
+            <span class="pin-label">Nazwa</span>
+            <p class="pin-note" id="detail-note"></p>
+          </div>
+          <dl class="pin-meta" id="detail-meta"></dl>
+          <button class="btn btn-primary" type="button" id="btn-toggle-active">Dezaktywuj</button>
+        </div>
+      </aside>
+
+      <div class="toast-stack" id="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script type="module" src="/static/js/app.js"></script>
+  </body>
+</html>
