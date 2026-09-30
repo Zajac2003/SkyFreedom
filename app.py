@@ -217,5 +217,11 @@ def api_pins_patch(pin_id: int):
 
 init_db()
 
+from seed_pins import seed_if_empty  # noqa: E402
+
+_seeded = seed_if_empty(DB_PATH)
+if _seeded:
+    print(f"SkyFreedom: seeded {_seeded} demo pins into empty database")
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
